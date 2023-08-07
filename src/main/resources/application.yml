@@ -1,0 +1,11 @@
+openai:
+  model: gpt-3.5-turbo
+  maxTokens: 150
+  temperature: 0
+  max-completions: 1
+openai.api:
+  key: API-KEY-INPUT-HERE
+  url: https://api.openai.com/v1/chat/completions
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
