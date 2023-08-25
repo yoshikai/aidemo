@@ -1,243 +1,262 @@
-<html lang="ja">
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>チャットモック</title>
-  <link
-          rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-          crossorigin="anonymous"
-  />
+  <title>ChatGPTデモ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   <style>
-      body {
-        margin: 0;
-      }
+.line-bc {
+<!--  padding: 20px 10px;-->
+  margin: 15px auto;
+  text-align: right;
+  font-size: 14px;
+  background: #7da4cd;
+}
+.balloon_ai {
+  width: 100%;
+  margin: 1.5em 0;
+  overflow: hidden;
+}
 
-      /* bootstrapの謎の右の余白を消す */
-      #_wrap {
-        overflow: hidden;
-        background: #f7f7f7;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
+.balloon_ai .faceicon {
+  float: left;
+  margin-right: -90px;
+  width: 80px;
+}
 
-      main {
-        flex: 1;
-      }
+.balloon_ai .faceicon img{
+  width: 100%;
+  height: auto;
+  border: solid 3px #d7ebfe;
+  border-radius: 50%;
+}
 
-      section {
-        width: 80%;
-        margin: 0 auto;
-      }
+.balloon_ai .chatting {
+  width: 100%;
+  text-align: left;
+}
 
-      aside {
-        width: 60%;
-      }
+.says {
+  display: inline-block;
+  position: relative;
+  margin: 10px 0 0 100px;
+  padding: 17px 13px;
+  border-radius: 12px;
+  background: #d7ebfe;
+}
 
-      /* スマホ用 */
-      @media screen and (max-width: 768px) {
-        section {
-          width: 95%;
-        }
+.says:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 18px;
+  left: -24px;
+  border: 12px solid transparent;
+  border-right: 12px solid #d7ebfe;
+}
 
-        aside {
-          display: none;
-        }
-      }
+.says p {
+  margin: 0;
+  padding: 0;
+}
 
-      @media screen and (max-width: 992px) {
-        aside {
-          display: none;
-        }
-      }
+.mycomment {
+  margin: 10px 0;
+}
+.mycomment p {
+  display: inline-block;
+  position: relative;
+  margin: 0 10px 0 0;
+  padding: 8px;
+  max-width: 250px;
+  border-radius: 12px;
+  background: #30e852;
+  font-size: 15px;
+  text-align: left;
+}
 
-      .line-bc {
-        padding: 20px 10px;
-        max-width: 868px;
-        margin: 15px auto;
-        font-size: 14px;
-        background: #88b3f7;
-      }
-
-      /* 吹き出し左 */
-      .balloon1 {
-        position: relative;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #000;
-        color: #fff;
-        max-width: 250px;
-        font-size: 15px;
-        word-wrap: break-word;
-        margin-left: 10px;
-      }
-
-      /* 三角アイコン左 */
-      .balloon1::before {
-        content: '';
-        display: inline-block;
-        position: absolute;
-        top: 3px;
-        left: -19px;
-        border: 8px solid transparent;
-        border-right: 18px solid #000;
-        -webkit-transform: rotate(35deg);
-        transform: rotate(35deg);
-      }
-
-      /* 吹き出し右 */
-      .balloon2 {
-        position: relative;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #30e852;
-        max-width: 250px;
-        font-size: 15px;
-        word-wrap: break-word;
-        margin-right: 20px;
-      }
-
-      /* 三角アイコン右 */
-      .balloon2::before {
-        content: '';
-        position: absolute;
-        top: 3px;
-        right: -19px;
-        border: 8px solid transparent;
-        border-left: 18px solid #30e852;
-        -webkit-transform: rotate(-35deg);
-        transform: rotate(-35deg);
-      }
-    </style>
+.mycomment p:after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: -19px;
+  border: 8px solid transparent;
+  border-left: 18px solid #30e852;
+  -webkit-transform: rotate(-35deg);
+  transform: rotate(-35deg);
+}
+  </style>
 </head>
 <body>
-<div id="app">
-  <div id="_wrap">
-    <!-- header -->
-    <header>
-      <div class="row">
-        <div class="col-12 clearfix">
-          <div class="float-left">
-            <h1 style="font-size: 20px">リアルタイムチャット</h1>
+<div class="container">
+  <header class="navbar navbar-expand-lg bd-navbar sticky-top navbar-dark bg-info">
+    <nav class="container-xxl bd-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
+      <ul class="nav justify-content-end">
+        <li class="nav-item">
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            質問をする
+          </button>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">ChatGPT設定</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">よくある質問設定</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <div class="container-xxl bd-gutter mt-3 my-md-4 bd-layout">
+    <main class="bd-main order-1 highlight">
+      <div class="container">
+        <h3 class="mt-5">よくある質問</h3>
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                無銭飲食時のベストな対応は？
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </div>
+            </div>
           </div>
-          <div class="float-right">
-            <button type="button" class="btn btn-success">ログイン</button>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                スタッフが炎上する動画を店内からアップした場合の対応は？
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                大量の予約の当日キャンセルのベストな対応は？
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <p>接続ユーザ数: 10</p>
-      <hr />
-    </header>
-    <!-- header -->
-
-    <!-- main -->
-    <main>
-      <div class="row">
-        <!-- article -->
-        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-9 col-xl-9">
-          <!-- section -->
-          <section>
-            <!-- 入力エリア -->
-            <label>
-                  <span class="btn btn-info">
-                    画像アップロード
-                    <input type="file" style="display: none" accept="image/*" />
-                  </span>
-            </label>
-
-            <hr />
-
-            <div class="form-group text-center">
-              <input
-                      maxlength="15"
-                      placeholder="ハンネ"
-                      size="30"
-                      value="名無し"
-              />
-            </div>
-
-            <div class="form-group">
-                  <textarea
-                          style="max-width: 400px; margin: 0 auto"
-                          class="form-control"
-                          id="textarea"
-                          placeholder="メッセージ 150文字以内"
-                          maxlength="150"
-                          rows="3"
-                  ></textarea>
-
-              <div class="text-center">
-                <button class="btn btn-primary">投稿</button>
-              </div>
-            </div>
-            <!-- 入力エリア -->
-
-            <hr />
-
-
-            <div class="line-bc">
-              <!-- 右吹き出し -->
-              <div>
-                <div class="clearfix">
-                  <div class="float-right">
-                    <div style="font-size: 12px; color: #fff">uname</div>
-                    <div style="font-size: 12px; color: #fff">uid</div>
-                  </div>
-                </div>
-                <div class="clearfix">
-                  <div class="balloon2 float-right">こんにちは</div>
-                </div>
-                <div class="clearfix">
-                  <div class="float-right">
-                    <time style="font-size: 12px">
-                      2020-12-19 09:26:35
-                    </time>
-                  </div>
-                </div>
-              </div>
-              <!-- 右吹き出し -->
-
-              <!-- 改行 -->
-              <br />
-
-              <!-- 左吹き出し -->
-              <div>
-                <div style="font-size: 12px; color: #fff">uname</div>
-                <div style="font-size: 12px; color: #fff">uid</div>
-                <div class="clearfix">
-                  <div class="balloon1 float-left">
-                    <a href="https://chat-line.netlify.app/" target="_blank" rel="noopener noreferrer"
-                    >https://chat-line.netlify.app/</a>
-                  </div>
-                </div>
-
-                <div className="clearfix">
-                  <time style="font-size: 12px"> 2020-12-19 09:26:35 </time>
-                </div>
-              </div>
-            </div>
-            <!-- 左吹き出し -->
-          </section>
-          <!-- section -->
-        </article>
-        <!-- article -->
-
-        <!-- aside -->
-        <aside class="col-xs-0 col-sm-0 col-md-0 col-lg-3 col-xl-3">
-          <div class="card" style="width: 90%; height: 1000px">
-            広告スペース
-          </div>
-        </aside>
-        <!-- aside -->
-      </div>
+      <div class="container">
+        <h3 class="mt-5">過去の質問内容</h3>
+        <span class="badge text-bg-danger">202308-23</span>
+        <p>
+          <strong>Lorem ipsum dolor sit amet</strong>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+      </div><!-- /container -->
     </main>
-    <!-- main -->
+  </div>
+
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">AI弁護士（仮）</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body line-bc" style="margin:1em" id="chat_body">
+        <div class="balloon_ai">
+          <div class="faceicon">
+            <img th:src="@{/human130.png}"/>
+          </div>
+          <div class="chatting">
+            <div class="says">
+              <p>どのようなご用件でしょうか？</p>
+            </div>
+          </div>
+        </div>
+        <div class="mycomment">
+          <p>
+            ほげほげ
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="なるべく具体的な質問内容を記述" aria-label="question" aria-describedby="button-send" id="question">
+          <button class="btn btn-outline-secondary" type="button" id="button-send">送信</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
+<script>
+  var cnt=1;
+  var chatgpt_response;
+
+  function send(){
+    $obj = $('div[name="comment_template"]').clone();  //コメント欄コピー
+    $obj.attr('name', 'comment' + cnt); //コメント欄の名前変更
+    const question = $("#question").val()
+    $obj.find('p').text(question); //コメント欄に質問追加
+    $obj.removeAttr('hidden');
+    $("#question").val('');  //質問入力欄を空に設定
+    $("#chat_body").append($obj);
+    //質問内容をChatGPTに送信
+    $.ajax({
+          type: "POST",
+          url: "/chat",
+          data: { prompt: question}
+        }).done(function( msg ) {
+          chatgpt_response = msg;
+          try{
+            console.log(msg);
+            $gpt = $('div[name="chat_template"]').clone();  //AI返答欄コピー
+            $gpt.attr('name', 'gpt' + cnt); //AI返答欄の名前変更
+            var message = '';
+            //msg.choices[0].message.content
+            for(var i=0; i<msg.choices.length; i++){
+
+              var choice = msg.choices[0];
+              message += choice.message.content
+            }
+            $gpt.find('p').text(message);
+            $gpt.removeAttr('hidden');
+            $("#chat_body").append($gpt);
+          }
+          catch(error){
+            console.log(error);
+          }
+        });
+  }
+  //イベント追加
+  $('#button-send').click(function() {
+    send();
+  });
+</script>
+<!--質問内容欄-->
+<div name="comment_template" class="mycomment" hidden>
+  <p name="comment">
+    ほげほげ
+  </p>
+</div>
+<!--AI返答欄-->
+<div class="balloon_ai" name="chat_template" hidden>
+  <div class="faceicon">
+    <img th:src="@{/human130.png}"/>
+  </div>
+  <div class="chatting">
+    <div class="says">
+      <p name="chat_message"></p>
+    </div>
+  </div>
+</div>
 </body>
 </html>

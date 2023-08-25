@@ -4,7 +4,7 @@ openai:
   temperature: 0
   max-completions: 1
 openai.api:
-  key: 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
+  key: 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
   url: https://api.openai.com/v1/chat/completions
 logging:
   level:
